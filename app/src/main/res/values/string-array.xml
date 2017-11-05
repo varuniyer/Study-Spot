@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="vol_levels">
+        <item>Any</item>
+        <item>Quiet</item>
+        <item>Medium</item>
+        <item>Loud</item>
+    </string-array>
+</resources>
