@@ -82,8 +82,6 @@ public class StudySpotSearchActivity extends AppCompatActivity implements Search
     private SearchView searchView;
     private ListView studySpotListView;
     private StudySpotAdapter studySpotListAdapter;
-    private ImageLoader imageLoader;
-    private DisplayImageOptions displayImageOptions;
     private HighlightRenderer highlightRenderer;
     public static StudySpot current;
 
