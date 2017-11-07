@@ -23,6 +23,36 @@
 
 package varuniyer.com.hackumass.studyspot.model;
 
+import varuniyer.com.hackumass.studyspot.ui.*;
+import varuniyer.com.hackumass.studyspot.model.HighlightedResult;
+
+import android.content.Context;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Comparator;
+import java.util.List;
+
+import cz.msebera.android.httpclient.HttpEntity;
+import cz.msebera.android.httpclient.HttpResponse;
+import cz.msebera.android.httpclient.client.ClientProtocolException;
+import cz.msebera.android.httpclient.client.HttpClient;
+import cz.msebera.android.httpclient.client.methods.HttpPost;
+import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
+
+import static android.content.Context.LOCATION_SERVICE;
+
 /**
  * A StudySpot object from the data model.
  */
@@ -40,8 +70,9 @@ public class StudySpot
     public double dist;
     public double lat;
     public double lon;
+    public Location loc;
 
-    public StudySpot(String name, String volume, String solo, String group, String sca,
+    public StudySpot(final Context context, String name, String volume, String solo, String group, String sca,
                      String outlets, String charging, String whiteboard, String printer,
                      double dist, double lat, double lon)
     {
@@ -54,8 +85,99 @@ public class StudySpot
         this.charging = charging;
         this.whiteboard = whiteboard;
         this.printer = printer;
-        this.dist = dist;
         this.lat = lat;
         this.lon = lon;
+       //Handler handler = new Handler();
+        //handler.postDelayed(new Runnable() {
+        new Thread() {
+            public void run() {
+                try {
+                    LocationManager lm = (LocationManager) context.getSystemService(LOCATION_SERVICE);
+                    loc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (loc != null)
+                        setDist(getDistanceInfo(loc.getLatitude(), loc.getLongitude()));
+                    LocationManager mLocationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
+                    List<String> providers = mLocationManager.getProviders(true);
+                    for (String provider : providers) {
+                        Location l = mLocationManager.getLastKnownLocation(provider);
+                        if (l == null) {
+                            continue;
+                        }
+                        if (loc == null || l.getAccuracy() < loc.getAccuracy()) {
+                            // Found best last known location: %s", l);
+                            loc = l;
+                            Log.i("Coordinates", loc.getLatitude() + " " + loc.getLongitude());
+                            setDist(getDistanceInfo(loc.getLatitude(), loc.getLongitude()));
+                        }
+                    }
+                } catch (SecurityException se) {
+
+                }
+            }
+        }.start();
+        //}, 3000);
+
+        /*handler.postDelayed(new Runnable() {
+            public void run() {
+                setDist(getDistanceInfo(loc.getLatitude(), loc.getLongitude()));
+            }
+        }, 3000);*/
+    }
+
+    public void setDist(double dist) {
+        this.dist = dist;
+    }
+
+    private double getDistanceInfo(double myLat, double myLon) {
+        StringBuilder stringBuilder = new StringBuilder();
+        Double dist = 0.0;
+        try {
+            String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" +
+                    myLat + "," + myLon + "&destination=" + lat + "," + lon +
+                    "&mode=walking&key=AIzaSyDakHVdOTOT00sEJ06bqopeqL02SLaO2QM";
+
+            HttpPost httppost = new HttpPost(url);
+
+            HttpClient client = new DefaultHttpClient();
+            HttpResponse response;
+            stringBuilder = new StringBuilder();
+
+
+            response = client.execute(httppost);
+            HttpEntity entity = response.getEntity();
+            InputStream stream = entity.getContent();
+            int b;
+            while ((b = stream.read()) != -1) {
+                stringBuilder.append((char) b);
+            }
+        } catch (ClientProtocolException e) {
+        } catch (IOException e) {
+        }
+
+        JSONObject jsonObject;
+        try {
+
+            jsonObject = new JSONObject(stringBuilder.toString());
+
+            JSONArray array = jsonObject.getJSONArray("routes");
+
+            JSONObject routes = array.getJSONObject(0);
+
+            JSONArray legs = routes.getJSONArray("legs");
+
+            JSONObject steps = legs.getJSONObject(0);
+
+            JSONObject distance = steps.getJSONObject("distance");
+
+            Log.i("Distance", distance.toString());
+            Log.i("Coordinates", myLat + " " + myLon + " " + lat + " " + lon);
+            dist = Double.parseDouble(distance.getString("text").replaceAll("[^\\.0123456789]","") );
+
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return dist;
     }
 }

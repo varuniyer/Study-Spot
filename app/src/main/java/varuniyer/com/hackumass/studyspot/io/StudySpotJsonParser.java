@@ -23,6 +23,7 @@
 
 package varuniyer.com.hackumass.studyspot.io;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -40,7 +41,7 @@ public class StudySpotJsonParser
      * @param jsonObject JSON object.
      * @return Parsed study spot, or null if error.
      */
-    public StudySpot parse(JSONObject jsonObject)
+    public StudySpot parse(JSONObject jsonObject, Context c)
     {
         if (jsonObject == null)
             return null;
@@ -61,7 +62,7 @@ public class StudySpotJsonParser
         if (name != null && volume != null && solo != null && group != null &&
                 sca != null && outlets != null && charging != null && whiteboard != null &&
                 printer != null && dist >= 0) {
-            return new StudySpot(name, volume, solo, group, sca, outlets, charging, whiteboard,
+            return new StudySpot(c, name, volume, solo, group, sca, outlets, charging, whiteboard,
                     printer, dist, lat, lon);
         }
         return null;

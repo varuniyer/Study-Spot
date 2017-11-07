@@ -23,6 +23,7 @@
 
 package varuniyer.com.hackumass.studyspot.io;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -48,7 +49,7 @@ public class SearchResultsJsonParser
      * @param jsonObject The result's root object.
      * @return A list of results (potentially empty), or null in case of error.
      */
-    public List<HighlightedResult<StudySpot>> parseResults(JSONObject jsonObject)
+    public List<HighlightedResult<StudySpot>> parseResults(JSONObject jsonObject, Context c)
     {
         if (jsonObject == null) {
             Log.i("Failure", "jsonObject is null");
@@ -69,7 +70,7 @@ public class SearchResultsJsonParser
                 continue;
             }
 
-            StudySpot spot = studySpotParser.parse(hit);
+            StudySpot spot = studySpotParser.parse(hit, c);
             if (spot == null) {
                 Log.i("Failure", "StudySpot is null");
                 continue;
@@ -91,9 +92,17 @@ public class SearchResultsJsonParser
                 Log.i("Failure", "Value String is null");
                 continue;
             }
-            HighlightedResult<StudySpot> result = new HighlightedResult<>(spot);
-            result.addHighlight("Name", new Highlight("Name", value));
-            results.add(result);
+            boolean exists = false;
+            for(HighlightedResult<StudySpot> hr : results) {
+                if(hr.getResult().name.equals(spot.name)) {
+                    exists = true;
+                }
+            }
+            if(!exists) {
+                HighlightedResult<StudySpot> result = new HighlightedResult<>(spot);
+                result.addHighlight("Name", new Highlight("Name", value));
+                results.add(result);
+            }
         }
         return results;
     }
