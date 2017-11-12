@@ -98,7 +98,7 @@ public class StudySpotSearchActivity extends AppCompatActivity implements Search
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_studyspot_search);
 
-
+        getSupportActionBar().hide();
 
         // Bind UI components.
         studySpotListView = (ListView) findViewById(R.id.listview_studyspots);
@@ -136,13 +136,7 @@ public class StudySpotSearchActivity extends AppCompatActivity implements Search
         searchView.setIconifiedByDefault(false);
         searchView.setOnQueryTextListener(this);
         searchView.setQuery("",true);
-        //loadMore();
-        /*studySpotListAdapter.sort(new Comparator<HighlightedResult<StudySpot>>() {
-            @Override
-            public int compare(HighlightedResult<StudySpot> o1, HighlightedResult<StudySpot> o2) {
-                return ((Double)(o1.getResult().dist)).compareTo(o2.getResult().dist);
-            }
-        });*/
+
         return true;
     }
 
@@ -167,6 +161,8 @@ public class StudySpotSearchActivity extends AppCompatActivity implements Search
                     // rom opening multiple connections to the
                     // same server, nor the Algolia client to transparently switch to another server
                     // between two requests. Therefore the order of responses is not guaranteed.
+                    // For this reason, we sort the results by distance right when we add them in
+                    // the addAll method.
                     if (currentSearchSeqNo <= lastDisplayedSeqNo) {
                         return;
                     }
