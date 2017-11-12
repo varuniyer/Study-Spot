@@ -87,8 +87,7 @@ public class StudySpot
         this.printer = printer;
         this.lat = lat;
         this.lon = lon;
-       //Handler handler = new Handler();
-        //handler.postDelayed(new Runnable() {
+
         new Thread() {
             public void run() {
                 try {
@@ -110,18 +109,11 @@ public class StudySpot
                             setDist(getDistanceInfo(loc.getLatitude(), loc.getLongitude()));
                         }
                     }
-                } catch (SecurityException se) {
-
+                } catch (SecurityException s) {
+                    Log.i("Security Exception", s.toString());
                 }
             }
         }.start();
-        //}, 3000);
-
-        /*handler.postDelayed(new Runnable() {
-            public void run() {
-                setDist(getDistanceInfo(loc.getLatitude(), loc.getLongitude()));
-            }
-        }, 3000);*/
     }
 
     public void setDist(double dist) {
@@ -130,7 +122,7 @@ public class StudySpot
 
     private double getDistanceInfo(double myLat, double myLon) {
         StringBuilder stringBuilder = new StringBuilder();
-        Double dist = 0.0;
+        double dist = -1.0;
         try {
             String url = "https://maps.googleapis.com/maps/api/directions/json?origin=" +
                     myLat + "," + myLon + "&destination=" + lat + "," + lon +
@@ -174,7 +166,6 @@ public class StudySpot
             dist = Double.parseDouble(distance.getString("text").replaceAll("[^\\.0123456789]","") );
 
         } catch (JSONException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

@@ -215,17 +215,9 @@ public class StudySpotSearchActivity extends AppCompatActivity implements Search
                     if (results.isEmpty()) {
                         endReached = true;
                     } else {
-                        //studySpotListAdapter.clear();
-
-
                         studySpotListAdapter.addAll(results);
                         studySpotListAdapter.notifyDataSetChanged();
-                        /*studySpotListAdapter.sort(new Comparator<HighlightedResult<StudySpot>>() {
-                            @Override
-                            public int compare(HighlightedResult<StudySpot> o1, HighlightedResult<StudySpot> o2) {
-                                return ((Double)(o1.getResult().dist)).compareTo(o2.getResult().dist);
-                            }
-                        });*/
+
                         lastDisplayedPage = lastRequestedPage;
                     }
                 }
@@ -273,35 +265,23 @@ public class StudySpotSearchActivity extends AppCompatActivity implements Search
         public void addAll(final Collection<? extends HighlightedResult<StudySpot>> items) {
             Log.i("Size",items.size() + "");
             studySpotListAdapter.clear();
-            //if(!initialized) {
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        /*for (HighlightedResult<StudySpot> item1 : items) {
-                            for (HighlightedResult<StudySpot> item2 : items) {
-                                if(item1.getResult().name.equals(item2.getResult().name))
-                                    items.remove(item2);
-                            }
-                        }*/
-                        for (HighlightedResult<StudySpot> item : items) {
-                            add(item);
-                        }
-                        studySpotListAdapter.sort(new Comparator<HighlightedResult<StudySpot>>() {
-                            @Override
-                            public int compare(HighlightedResult<StudySpot> o1, HighlightedResult<StudySpot> o2) {
-                                return ((Double) (o1.getResult().dist)).compareTo(o2.getResult().dist);
-                            }
-                        });
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    for (HighlightedResult<StudySpot> item : items) {
+                        add(item);
                     }
-                }, 2000);
-                initialized = true;
-            //}
-            /*else {
-                for (HighlightedResult<StudySpot> item : items) {
-                    add(item);
+                    studySpotListAdapter.sort(new Comparator<HighlightedResult<StudySpot>>() {
+                        @Override
+                        public int compare(HighlightedResult<StudySpot> o1, HighlightedResult<StudySpot> o2) {
+                            return ((Double) (o1.getResult().dist)).compareTo(o2.getResult().dist);
+                        }
+                    });
                 }
-            }*/
+            }, 2000);
+            initialized = true;
         }
     }
 
